@@ -31,7 +31,7 @@ void application_run(EventBroadcaster &observe, const Api &query) {
     long blocked = blocktime_ms();
     time_t ctime = time(nullptr);
     bool success = query.restrictChatMember(msg->chat->id, msg->from->id, ctime + blocked);
-    
+
     cout << "Blocking user " << msg->from->firstName << "("<<msg->from->lastName<<","<<msg->from->id<<")";
     cout << " in chat " << msg->chat->firstName << " " << msg->chat->lastName << " at " << ctime << " for " << blocked;
     if (success) cout << " [success]";
@@ -60,7 +60,7 @@ int main() {
     cerr << "Expected token set " << TOKEN_ENV << endl;
     exit(1);
   }
-  
+
   BLOCK_MAX = atol(getenv("MIN_BLOCK"));
   BLOCK_MAX = atol(getenv("MAX_BLOCK"));
 
@@ -68,7 +68,8 @@ int main() {
 
   cout << "Telegram token: " << token << endl;
 
-  Bot tg(token);
+  HttpClient *httpc = getenv("USE_CURL") ? dynamic_cast<HttpClient*>(new CurlHttpClient()) : dynamic_cast<HttpClient*>(new BoostHttpOnlySslClient());
+  Bot tg(token, *httpc);
 
   auto subscriber = tg.getEvents();
   auto api = tg.getApi();
