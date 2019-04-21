@@ -28,6 +28,8 @@ auto nameOf = [](Chat::Type t) {
 
 void application_run(EventBroadcaster &observe, const Api &query) {
   auto handleSucide = [&query](Message::Ptr msg) {
+    cerr << "onSuicide: " << msg->chat->id << ":" << msg->messageId << endl;
+
     long blocked = blocktime_ms();
     time_t ctime = time(nullptr);
     bool success = query.restrictChatMember(msg->chat->id, msg->from->id, ctime + blocked);
@@ -45,12 +47,15 @@ void application_run(EventBroadcaster &observe, const Api &query) {
     query.sendMessage(msg->chat->id, success?str:str_failed, false, msg->messageId);
   };
 
-  observe.onCommand("suicide", handleSucide);
+  observe.onCommand(string("suicide"), handleSucide);
   observe.onAnyMessage([&query](Message::Ptr msg) {
+    cerr << "onAnyMessage: " << msg->chat->id << ":" << msg->messageId << endl;
     if (msg->chat->type != Chat::Type::Supergroup)
      query.sendMessage(msg->chat->id, "Expected to be sent in Supergroup, received " + nameOf(msg->chat->type));
     else query.sendMessage(msg->chat->id, "Unexpected command", false, msg->messageId);
   });
+
+  cout << "Application bootup" << endl;
 }
 
 // launcher
@@ -84,8 +89,9 @@ int main() {
 
     TgLongPoll ml(tg);
     for (;;) {
+      cout << "starting longpoll " << hex << (reinterpret_cast<void *>(&ml)) << " at " << dec << time(nullptr) << endl;
       ml.start();
-      cout << "Long poll routine started" << endl;
+      cout << "["<<time(nullptr)<<"]"<< " Long poll routine ended" << endl;
     }
 
   } catch (exception &e) { cerr << "Error! " << e.what() << endl; }
