@@ -42,7 +42,7 @@ void application_run(EventBroadcaster &observe, const Api &query) {
     // tease the user
     const string str_failed("Failed to restrict you!");
     string str("Well done! You've been blocked for ");
-    str += (blocked / 60); str += " seconds!";
+    str += (blocked / 1000); str += " seconds!";
 
     query.sendMessage(msg->chat->id, success?str:str_failed, false, msg->messageId);
   };
